@@ -14,9 +14,7 @@ end
 
 function SpousePersistence.get()
     local data = ModData.getOrCreate(SpouseConfig.MOD_ID)
-    if data.version == nil then
-        data.version = SpouseConfig.DATA_VERSION
-    end
+    data.version = data.version or 0
     return data
 end
 
