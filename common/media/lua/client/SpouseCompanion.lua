@@ -1,6 +1,6 @@
 SpouseCompanion = {
     runtime = nil,
-    lastRecoveryHour = -1,
+    recoveryMinutesElapsed = 0,
 }
 
 local function log(message)
@@ -19,14 +19,17 @@ local function nearbySquare(player)
     local y = math.floor(player:getY())
     local z = player:getZ()
 
-    for distance = 2, 8 do
-        local square = cell:getGridSquare(x + distance, y, z)
-        if square and square:isFree(false) then
-            return square
-        end
-        square = cell:getGridSquare(x - distance, y, z)
-        if square and square:isFree(false) then
-            return square
+    for distance = SpouseConfig.INTRODUCTION_DISTANCE, 8 do
+        local candidates = {
+            cell:getGridSquare(x + distance, y, z),
+            cell:getGridSquare(x - distance, y, z),
+            cell:getGridSquare(x, y + distance, z),
+            cell:getGridSquare(x, y - distance, z),
+        }
+        for _, square in ipairs(candidates) do
+            if square and square:isFree(false) then
+                return square
+            end
         end
     end
     return cell:getGridSquare(x, y + 2, z)
@@ -104,6 +107,16 @@ local function setFollowing(player, following)
     end
 end
 
+local function isRuntimeDead()
+    local runtime = SpouseCompanion.runtime
+    if not runtime then
+        return false
+    end
+
+    local ok, dead = pcall(function() return runtime:isDead() end)
+    return ok and dead == true
+end
+
 local function say(player, text)
     if player and player.Say then
         player:Say(text)
@@ -165,14 +178,22 @@ local function onEveryMinute()
         return
     end
 
+    if isRuntimeDead() then
+        SpousePersistence.markDead()
+        SpouseCompanion.runtime = nil
+        return
+    end
+
     if data.following then
         local distance = SpouseCompanion.runtime:DistTo(player)
         if distance > SpouseConfig.RECOVERY_DISTANCE then
-            local hour = math.floor(getGameTime():getWorldAgeHours())
-            if hour ~= SpouseCompanion.lastRecoveryHour then
-                SpouseCompanion.lastRecoveryHour = hour
+            SpouseCompanion.recoveryMinutesElapsed = SpouseCompanion.recoveryMinutesElapsed + 1
+            if SpouseCompanion.recoveryMinutesElapsed >= SpouseConfig.RECOVERY_COOLDOWN_MINUTES then
+                SpouseCompanion.recoveryMinutesElapsed = 0
                 SpouseCompanion.runtime:pathToCharacter(player)
             end
+        else
+            SpouseCompanion.recoveryMinutesElapsed = 0
         end
     end
     SpousePersistence.setLastPosition(SpouseCompanion.runtime)
