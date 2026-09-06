@@ -35,18 +35,29 @@ local function nearbySquare(player)
     return cell:getGridSquare(x, y + 2, z)
 end
 
+local function buildDescriptor(profile)
+    local isFemale = profile.identity.sex == "female"
+    local ok, descriptor = pcall(function()
+        return SurvivorFactory.CreateSurvivor(SurvivorType.Neutral, isFemale)
+    end)
+    if not ok or not descriptor then
+        descriptor = SurvivorDesc.new()
+        pcall(function()
+            descriptor:setFemale(isFemale)
+        end)
+    end
+    descriptor:setForename(profile.name.forename)
+    descriptor:setSurname(profile.name.surname)
+    return descriptor
+end
+
 local function createSurvivor(square, profile)
     if not square then
         return nil
     end
 
     local ok, survivor = pcall(function()
-        local descriptor = SurvivorDesc.new()
-        descriptor:setForename(profile.name.forename)
-        descriptor:setSurname(profile.name.surname)
-        pcall(function()
-            descriptor:setFemale(profile.identity.sex == "female")
-        end)
+        local descriptor = buildDescriptor(profile)
         return IsoSurvivor.new(descriptor, getCell(), square:getX(), square:getY(), square:getZ())
     end)
     if ok and survivor then
