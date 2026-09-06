@@ -64,8 +64,8 @@ local function placeRuntime(square, data)
     end
 
     survivor:setName(data.name)
-    survivor:setIgnoreAimingInput(true)
-    survivor:setAllowBehaviours(true)
+    pcall(function() survivor:setIgnoreAimingInput(true) end)
+    pcall(function() survivor:setAllowBehaviours(true) end)
     SpouseCompanion.runtime = survivor
     data.lastPosition = { x = square:getX(), y = square:getY(), z = square:getZ() }
     return survivor
