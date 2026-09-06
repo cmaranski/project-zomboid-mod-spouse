@@ -1,0 +1,6 @@
+name=Spouse
+id=Spouse
+poster=poster.png
+description=Single-player-first spouse companion foundation for Project Zomboid Build 42. Adds persistent spouse data, commands, dialogue, and save scaffolding ready for future NPC backend integration.
+version=0.1.0
+url=https://github.com/cmaranski/project-zomboid-mod-spouse
