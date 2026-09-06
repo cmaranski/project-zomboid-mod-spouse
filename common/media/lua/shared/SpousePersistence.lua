@@ -14,9 +14,7 @@ end
 
 function SpousePersistence.get()
     local data = ModData.getOrCreate(SpouseConfig.MOD_ID)
-    if data.version == nil then
-        data.version = SpouseConfig.DATA_VERSION
-    end
+    data.version = data.version or 0
     return data
 end
 
@@ -36,7 +34,6 @@ function SpousePersistence.migrate(data)
         data.dialogueFlags = data.dialogueFlags or {}
         data.inventory = data.inventory or {}
         data.home = data.home or SpouseConfig.DEFAULT_HOME
-        data.lastRecoveryHour = data.lastRecoveryHour or -1
     end
     if version < 2 then
         data.version = 2
