@@ -15,7 +15,7 @@ A small Project Zomboid companion mod featuring a fixed private character based 
 ## Install for development
 
 1. Copy this repository into `%UserProfile%\Zomboid\mods\SpouseCompanion` (the user data folder, not the Steam install directory).
-2. Ensure `mod.info` sits directly inside that folder, with the Lua code under `common/media/lua/...` (Build 42 requires a `common` or version folder — mods with `media` at the root are not detected).
+2. Confirm `mod.info` and `poster.png` sit inside a `42/` version folder (`SpouseCompanion/42/mod.info`), with the Lua code under `common/media/lua/...`. On Build 42.20.4, a `mod.info` sitting directly at the mod root is not picked up by the in-game Select Mods screen at all — it must live inside the version folder for the mod to be listed.
 3. Enable **Spouse Companion** from the in-game Mods menu.
 4. Start a new single-player save for the introduction flow.
 
