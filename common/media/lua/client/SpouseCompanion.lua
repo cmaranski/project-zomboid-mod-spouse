@@ -51,6 +51,18 @@ local function buildDescriptor(profile)
     return descriptor
 end
 
+local function isSurvivorUsable(survivor)
+    local ok, damage = pcall(function()
+        return survivor:getBodyDamage()
+    end)
+    return ok and damage ~= nil
+end
+
+local function discardBrokenSurvivor(survivor)
+    pcall(function() survivor:removeFromWorld() end)
+    pcall(function() survivor:removeFromSquare() end)
+end
+
 local function createSurvivor(square, profile)
     if not square then
         return nil
@@ -58,13 +70,18 @@ local function createSurvivor(square, profile)
 
     local ok, survivor = pcall(function()
         local descriptor = buildDescriptor(profile)
-        return IsoSurvivor.new(descriptor, getCell(), square:getX(), square:getY(), square:getZ())
+        local created = IsoSurvivor.new(descriptor, getCell(), square:getX(), square:getY(), square:getZ())
+        if created and not isSurvivorUsable(created) then
+            discardBrokenSurvivor(created)
+            return nil
+        end
+        return created
     end)
     if ok and survivor then
         return survivor
     end
 
-    log("This game build could not construct an IsoSurvivor")
+    log("This game build could not construct a usable IsoSurvivor")
     return nil
 end
 
